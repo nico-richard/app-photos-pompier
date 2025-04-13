@@ -1,0 +1,17 @@
+{
+  "appId": "nrichard.appphotospompier",
+  "files": ["dist-electron", "dist-react"],
+  "extraResources": ["dist-electron/electron/preload.cjs", "src/assets/**"],
+  "icon": "src/assets/fireTruck.png",
+  "mac": {
+    "target": "dmg"
+  },
+  "linux": {
+    "target": "AppImage",
+    "category": "Utility"
+  },
+  "win": {
+    "target": ["portable"],
+    "signAndEditExecutable": false
+  }
+}
