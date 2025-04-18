@@ -9,33 +9,34 @@ import 'mantine-react-table/styles.css';
 import '@mantine/notifications/styles.css';
 import { View } from '../models/View';
 import ImportFile from './components/ImportFile';
-import { brandColumns, vehicleColumns } from './data/tableColumns';
+import { brandColumns, getVehicleColumns } from './data/tableColumns';
 import { theme } from './data/theme';
 import ViewsGallery from './components/ViewsGallery';
 import { ModalsProvider } from '@mantine/modals';
 import { ViewFilters } from '../models/ViewFilters';
 import fireTruck from '../assets/fireTruck.png';
 import Home from './components/Home';
-import BrandsList from './components/BrandsList';
 import { applyFilters } from './utils/Filtering';
 import { Brand } from '../models/Brand';
 import { Notifications } from '@mantine/notifications';
+import { useDisclosure } from '@mantine/hooks';
+import VehicleDetailsModal from './components/modals/VehicleDetailsModal';
 
 function App() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [activeTab, setActiveTab] = useState<string | null>('home');
-  const [selectedVehicle, setSelectedVehicle] = useState<number>();
   const [views, setViews] = useState<View[]>([]);
   const [filteredViews, setFilteredViews] = useState<View[]>([]);
   const [viewFilters, setViewFilters] = useState<ViewFilters>();
-  const [brandsCount, setBrandsCount] = useState<
-    { name: string; count: number }[]
-  >([]);
   const [brands, setBrands] = useState<Brand[]>([]);
-
-  function countBrandsOnDb() {
-    window.brandAPI.countBrands().then((res) => setBrandsCount(res));
-  }
+  const [withFilters, setWithFilters] = useState<boolean>(true);
+  const [addViewForVehicleModalOpened, addViewForVehicleModalTriggers] =
+    useDisclosure(false);
+  const [vehicleDetailsModalOpened, vehicleDetailsModalTriggers] =
+    useDisclosure(false);
+  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | undefined>(
+    undefined
+  );
 
   const getAllVehicles = () => {
     window.vehicleAPI.getAllVehicles().then((vehicles) => {
@@ -62,9 +63,13 @@ function App() {
     setViewFilters(filters);
   };
 
+  const handleAddViewForRow = (vehicle: Vehicle) => {
+    setSelectedVehicle(vehicle);
+    addViewForVehicleModalTriggers.open();
+  };
+
   useEffect(() => {
     getAllVehicles();
-    countBrandsOnDb();
     getAllViews();
     getAllBrands();
   }, []);
@@ -77,24 +82,17 @@ function App() {
   }, [views, viewFilters]);
 
   function handleSelectVehicleInTable(row: Vehicle): void {
-    setActiveTab('viewsGallery');
-    setSelectedVehicle(row.id);
+    setSelectedVehicle(row);
+    vehicleDetailsModalTriggers.open();
   }
 
   const handleVehicleUpdate = async (
     vehicleToUpdate: Vehicle,
     updatedData: Vehicle
-  ) => {
-    console.log('updatedData ', updatedData);
-    const brandName = updatedData?.brand as unknown as string;
-    if (!brandName) {
-      console.log('No brand found');
-      return;
-    }
-    const brandEntity = await window.brandAPI.getBrandForName(brandName);
-    if (!brandEntity) {
-      console.log('No brand entity found for name : ' + brandName);
-      return;
+  ): Promise<Vehicle | null> => {
+    const brandEntity = await getBrandEntity(updatedData);
+    if (brandEntity == null) {
+      return null;
     }
     return window.vehicleAPI.updateVehicle(vehicleToUpdate, {
       ...updatedData,
@@ -102,9 +100,51 @@ function App() {
     });
   };
 
+  async function getBrandEntity(vehicle: Vehicle) {
+    const brandName = vehicle?.brand as unknown as string;
+    if (!brandName) {
+      console.log('No brand found');
+      return null;
+    }
+    const brandEntity = await window.brandAPI.getBrandForName(brandName);
+    if (!brandEntity) {
+      console.log('No brand entity found for name : ' + brandName);
+      return null;
+    }
+    return brandEntity;
+  }
+
+  const handleVehicleCreation = async (
+    vehicleToCreate: Vehicle
+  ): Promise<Vehicle | null> => {
+    const brandEntity = await getBrandEntity(vehicleToCreate);
+    if (brandEntity == null) {
+      return null;
+    }
+    return window.vehicleAPI.createVehicle({
+      ...vehicleToCreate,
+      brandId: brandEntity.id,
+    });
+  };
+
   return (
     <MantineProvider theme={theme} defaultColorScheme={'dark'}>
       <Notifications />
+      <VehicleDetailsModal
+        addViewForVehicleModalOpened={addViewForVehicleModalOpened}
+        selectedVehicle={selectedVehicle}
+        close={addViewForVehicleModalTriggers.close}
+        title={'Ajouter des photos'}
+        views={views}
+        selectAndAddButtons
+      />
+      <VehicleDetailsModal
+        addViewForVehicleModalOpened={vehicleDetailsModalOpened}
+        selectedVehicle={selectedVehicle}
+        close={vehicleDetailsModalTriggers.close}
+        title={'Détails du véhicule'}
+        views={views}
+      />
       <ModalsProvider>
         <Image
           src={fireTruck}
@@ -116,10 +156,10 @@ function App() {
           <Tabs
             value={activeTab}
             onChange={(value: string | null) => {
-              setActiveTab(value);
-              if (value === 'vehicleList') {
-                getAllVehicles();
+              if (value !== 'viewsGallery') {
+                setWithFilters(true);
               }
+              setActiveTab(value);
             }}
             keepMounted={false}
             variant={'pills'}
@@ -140,40 +180,56 @@ function App() {
             <Tabs.Panel value="vehicleList">
               <Table
                 data={vehicles}
-                columns={vehicleColumns}
+                columns={getVehicleColumns(brands)}
                 setActiveTab={setActiveTab}
+                selectTooltip
                 refreshData={() => {
                   getAllVehicles();
                   getAllViews();
                   getAllBrands();
                 }}
-                onCreate={(vehicleToCreate) =>
-                  window.vehicleAPI.createVehicle(vehicleToCreate)
-                }
+                onCreate={handleVehicleCreation}
                 onUpdate={handleVehicleUpdate}
                 onDelete={(vehicleToDelete) =>
                   window.vehicleAPI.deleteVehicle(vehicleToDelete.id)
                 }
                 onSelectRow={handleSelectVehicleInTable}
+                onAddViewForRow={handleAddViewForRow}
                 tableOptions={brands}
-              />
+              >
+                Liste des véhicules
+              </Table>
             </Tabs.Panel>
             <Tabs.Panel value="viewsGallery">
               <ViewsGallery
                 views={filteredViews}
                 onFilterChange={handleFilterChange}
-                brands={brandsCount}
+                brands={brands}
+                withFilters={withFilters}
               />
             </Tabs.Panel>
             <Tabs.Panel value="import">
               <ImportFile />
             </Tabs.Panel>
             <Tabs.Panel value="brandsList">
-              <BrandsList
-                brands={brandsCount}
-                onBrandChange={countBrandsOnDb}
-              />
-              <Table data={brands} columns={brandColumns} />
+              <Table
+                data={brands}
+                columns={brandColumns}
+                refreshData={() => {
+                  getAllBrands();
+                }}
+                onCreate={(vehicleToCreate) =>
+                  window.brandAPI.createBrand(vehicleToCreate)
+                }
+                onUpdate={(brandToUpdate, updatedData) =>
+                  window.brandAPI.updateBrand(brandToUpdate, updatedData)
+                }
+                onDelete={(vehicleToDelete) =>
+                  window.brandAPI.deleteBrand(vehicleToDelete.id)
+                }
+              >
+                Liste des marques
+              </Table>
             </Tabs.Panel>
           </Tabs>
         </Container>

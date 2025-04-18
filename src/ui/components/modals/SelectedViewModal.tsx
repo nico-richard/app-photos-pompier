@@ -1,33 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import { Image, List, Modal } from '@mantine/core';
-import { View } from '../../models/View';
-import { Vehicle } from '../../models/Vehicle';
+import { View } from '../../../models/View';
+import { Vehicle } from '../../../models/Vehicle';
 import { MdConstruction, MdDateRange } from 'react-icons/md';
 import { TbNumber123 } from 'react-icons/tb';
 import { LuKeyRound } from 'react-icons/lu';
 import { FaRegCommentAlt } from 'react-icons/fa';
 
 interface SelectedVehicleModalProps {
-  vehicleModalOpened: boolean;
-  selectedImage?: View;
+  viewModalOpened: boolean;
+  selectedView?: View;
   close: () => void;
 }
 
-const SelectedVehicleModal = (props: SelectedVehicleModalProps) => {
+const SelectedViewModal = (props: SelectedVehicleModalProps) => {
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle>();
   useEffect(() => {
     const getVehicle = async () => {
-      const vehicleId = props.selectedImage?.vehicleId;
+      const vehicleId = props.selectedView?.vehicleId;
       return vehicleId ? await window.vehicleAPI.getVehicle(vehicleId) : null;
     };
     getVehicle().then((vehicle) => {
       setSelectedVehicle(vehicle);
     });
-  }, [props.selectedImage]);
+  }, [props.selectedView]);
   return (
     <div>
       <Modal
-        opened={props.vehicleModalOpened}
+        opened={props.viewModalOpened}
         onClose={props.close}
         withCloseButton={false}
         transitionProps={{
@@ -37,7 +37,7 @@ const SelectedVehicleModal = (props: SelectedVehicleModalProps) => {
         }}
         size="xl"
       >
-        <Image src={`perso:///${props.selectedImage?.url}`} />
+        <Image src={`perso:///${props.selectedView?.url}`} />
         <h3>
           {selectedVehicle?.brand?.name} {selectedVehicle?.model}
         </h3>
@@ -73,4 +73,4 @@ const SelectedVehicleModal = (props: SelectedVehicleModalProps) => {
   );
 };
 
-export default SelectedVehicleModal;
+export default SelectedViewModal;

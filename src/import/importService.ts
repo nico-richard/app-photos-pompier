@@ -7,13 +7,30 @@ export const getRowValueAtIndex = (row: string[], index: number): string => {
   return '';
 };
 
-export const getNumberRowValueAtIndex = (row: string[], index: number): number | null => {
+export const getNumberRowValueAtIndex = (
+  row: string[],
+  index: number
+): number | null => {
   if (row && row[index]) {
     return +row[index];
   }
   return null;
 };
 
+export const getBrand = (
+  firstColumnSplitBySpace: '' | string[],
+  sheetName: string
+) => {
+  if (!firstColumnSplitBySpace) {
+    console.log('sheet name and first column does not match');
+  }
+  if (firstColumnSplitBySpace[0] !== sheetName) {
+    console.log('sheet name and first column does not match');
+    return sheetName;
+  } else {
+    return firstColumnSplitBySpace[0];
+  }
+};
 
 export const getBrandsForFile = (
   filePath: string

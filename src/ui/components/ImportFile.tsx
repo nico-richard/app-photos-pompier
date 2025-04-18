@@ -37,7 +37,7 @@ const ImportFile = () => {
       </h1>
       <Flex direction="row" gap="md" align="center">
         <Flex direction="column" gap="md" style={{ flex: '1' }}>
-          <Button color={theme.colors!.blue![9]} onClick={handleSelectFile}>
+          <Button color={theme.colors!.blue[9]} onClick={handleSelectFile}>
             Sélectionner un fichier
           </Button>
           <Button
@@ -48,7 +48,7 @@ const ImportFile = () => {
             Vérifier
           </Button>
           <Button
-            color={theme.colors!.green![9]}
+            color={theme.colors!.green[9]}
             onClick={handleImportFile}
             disabled={file === '' || !fileChecked}
           >

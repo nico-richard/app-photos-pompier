@@ -1,4 +1,5 @@
 import {
+  getBrand,
   getNumberRowValueAtIndex,
   getRowValueAtIndex,
 } from './importService.js';
@@ -6,12 +7,15 @@ import { Vehicle } from '../models/Vehicle.js';
 import { handleViewCreation } from './viewCreation.js';
 import { Brand } from '../models/Brand.js';
 
-export async function createVehicle(row: string[], filePath: string) {
+export async function createVehicle(
+  row: string[],
+  filePath: string,
+  sheetName: string
+) {
   const firstColumn = getRowValueAtIndex(row, 0);
   const firstColumnSplitBySpace = firstColumn && firstColumn.split(' ');
-  const brand = firstColumnSplitBySpace && firstColumnSplitBySpace[0];
-  const firstColumnWithoutBrand = firstColumn.replace(brand, '');
-  const model = firstColumnWithoutBrand && firstColumnWithoutBrand.trim();
+  const brand = getBrand(firstColumnSplitBySpace, sheetName);
+  const model = firstColumn && firstColumn.slice(brand.length).trim();
   const equipment = getRowValueAtIndex(row, 1);
   const owner = getRowValueAtIndex(row, 2);
   const viewString = getRowValueAtIndex(row, 3);
@@ -20,7 +24,7 @@ export async function createVehicle(row: string[], filePath: string) {
   const license = getRowValueAtIndex(row, 6);
 
   const brandEntity = await Brand.findOne({
-    where: { name: brand },
+    where: { name: brand.toUpperCase() },
   });
   if (!brandEntity) {
     console.log('No brand found for name : ' + brand);

@@ -17,8 +17,8 @@ import { sequelize } from '../database.js';
 import {
   createVehicle,
   deleteVehicle,
-  getAllVehicles,
-  getVehicle,
+  getAllVehicles, getMinMaxVehiclesDate,
+  getVehicle, getVehicleForView,
   updateVehicle,
 } from './vehicleApiHandlers.js';
 import {
@@ -69,11 +69,23 @@ const createWindow = async () => {
     return result.filePaths[0];
   };
 
+  const selectFiles = async () => {
+    if (!mainWindow) return [];
+
+    const result = await dialog.showOpenDialog(mainWindow, {
+      properties: ['openFile', 'multiSelections'],
+    });
+    if (result.canceled) return [];
+
+    return result.filePaths;
+  };
+
   ipcMainHandle('getVehiclesAndViews', getVehiclesAndViews);
   ipcMainHandle('import', (file: string) => {
     importFile(file);
   });
   ipcMainHandle('selectFile', selectFile);
+  ipcMainHandle('selectFiles', selectFiles);
   ipcMainHandle('checkFile', (file: string) => checkFile(file));
   ipcMainHandle('getViewsByVehicle', (vehicleId: number) =>
     getViewsByVehicle(vehicleId)
@@ -81,6 +93,8 @@ const createWindow = async () => {
 
   ipcMainHandle('createVehicle', createVehicle);
   ipcMainHandle('getVehicle', getVehicle);
+  ipcMainHandle('getVehicleForView', getVehicleForView);
+  ipcMainHandle('getMinMaxVehiclesDate', getMinMaxVehiclesDate);
   ipcMainHandle('getAllVehicles', getAllVehicles);
   ipcMainHandle('updateVehicle', updateVehicle);
   ipcMainHandle('deleteVehicle', deleteVehicle);

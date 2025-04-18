@@ -8,6 +8,7 @@ electron.contextBridge.exposeInMainWorld('electron', {
   getVehiclesAndViews: () => ipcInvoke('getVehiclesAndViews'),
   import: (file: string) => ipcInvoke('import', file),
   selectFile: () => ipcInvoke('selectFile'),
+  selectFiles: () => ipcInvoke('selectFiles'),
   checkFile: (file: string) => ipcInvoke('checkFile', file),
   getViewsByVehicle: (vehicleId: number) =>
     ipcInvoke('getViewsByVehicle', vehicleId),
@@ -16,6 +17,8 @@ electron.contextBridge.exposeInMainWorld('electron', {
 electron.contextBridge.exposeInMainWorld('vehicleAPI', {
   createVehicle: (vehicle: Vehicle) => ipcInvoke('createVehicle', vehicle),
   getVehicle: (vehicleId: number) => ipcInvoke('getVehicle', vehicleId),
+  getVehicleForView: (view: View) => ipcInvoke('getVehicleForView', view),
+  getMinMaxVehiclesDate: () => ipcInvoke('getMinMaxVehiclesDate'),
   getAllVehicles: () => ipcInvoke('getAllVehicles'),
   updateVehicle: (vehicleToUpdate: Vehicle, vehicle: Vehicle) =>
     ipcInvoke('updateVehicle', { vehicleToUpdate, vehicle }),
@@ -34,7 +37,8 @@ electron.contextBridge.exposeInMainWorld('viewAPI', {
 electron.contextBridge.exposeInMainWorld('brandAPI', {
   createBrand: (brand: Brand) => ipcInvoke('createBrand', brand),
   getBrand: (brandId: number) => ipcInvoke('getBrand', brandId),
-  getBrandForName: (brandName: string) => ipcInvoke('getBrandForName', brandName),
+  getBrandForName: (brandName: string) =>
+    ipcInvoke('getBrandForName', brandName),
   countBrands: () => ipcInvoke('countBrands'),
   getAllBrands: () => ipcInvoke('getAllBrands'),
   updateBrand: (brandToUpdate: Brand, brand: Brand) =>

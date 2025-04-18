@@ -5,47 +5,72 @@ import {
   Flex,
   Grid,
   Image,
+  Title,
   useMantineTheme,
 } from '@mantine/core';
 import { View } from '../../models/View';
 import { useDisclosure } from '@mantine/hooks';
-import SelectedVehicleModal from './SelectedVehicleModal';
+import SelectedViewModal from './modals/SelectedViewModal';
 import ViewFilter from './ViewFilter';
 import { ViewFilters } from '../../models/ViewFilters';
+import { Brand } from '../../models/Brand';
+import { Vehicle } from '../../models/Vehicle';
 
 interface ViewsGalleryProps {
   views: View[];
   onFilterChange: (filters: ViewFilters) => void;
-  brands: { name: string, count: number }[];
+  brands: Brand[];
+  withFilters: boolean;
 }
 
 const ViewsGallery = (props: ViewsGalleryProps) => {
   const [visibleCount, setVisibleCount] = useState(6);
   const [selectedView, setSelectedView] = useState<View | undefined>(undefined);
+  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle>();
   const [vehicleModalOpened, { open, close }] = useDisclosure(false);
   const theme = useMantineTheme();
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    setSelectedVehicle(props.views[0]?.vehicle);
+  }, []);
 
   const handleLoadMore = () => setVisibleCount((prev) => prev + 6);
 
   return (
     <div>
-      <h1>Gallerie des photos</h1>
+      <Title order={1} m={20}>
+        Gallerie des photos
+      </Title>
+      {!props.withFilters && (
+        <h3
+          style={{
+            textAlign: 'center',
+            marginBottom: 0,
+          }}
+        >
+          {' '}
+          {`${selectedVehicle?.brand?.name} ${selectedVehicle?.model}`}
+        </h3>
+      )}
       <Flex justify="space-evenly">
-        <SelectedVehicleModal
-          vehicleModalOpened={vehicleModalOpened}
+        <SelectedViewModal
+          viewModalOpened={vehicleModalOpened}
           close={close}
-          selectedImage={selectedView}
+          selectedView={selectedView}
         />
-        <ViewFilter onFilterChange={props.onFilterChange} brands={props.brands} />
+        {props.withFilters && (
+          <ViewFilter
+            onFilterChange={props.onFilterChange}
+            brands={props.brands}
+            views={props.views}
+          />
+        )}
         <Container
           fluid
           style={{
-            margin: '1.5rem 0 0 0',
-            paddingTop: '1.5rem',
+            padding: '1rem',
             overflowY: 'auto',
-            height: '80vh',
+            maxHeight: '80vh',
             borderRadius: '5px',
             backgroundColor: theme.colors.black[6],
           }}
@@ -53,18 +78,16 @@ const ViewsGallery = (props: ViewsGalleryProps) => {
           <Grid align="center">
             {props.views.slice(0, visibleCount).map((view, index) => (
               <Grid.Col span={4} key={index}>
-                <label>
-                  <Image
-                    src={`perso:///${view.url}`}
-                    loading="lazy"
-                    radius="sm"
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => {
-                      setSelectedView(view);
-                      open();
-                    }}
-                  />
-                </label>
+                <Image
+                  src={`perso:///${view.url}`}
+                  loading="lazy"
+                  radius="sm"
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => {
+                    setSelectedView(view);
+                    open();
+                  }}
+                />
               </Grid.Col>
             ))}
           </Grid>
@@ -82,5 +105,4 @@ const ViewsGallery = (props: ViewsGalleryProps) => {
     </div>
   );
 };
-
 export default ViewsGallery;

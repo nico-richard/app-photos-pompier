@@ -17,7 +17,8 @@
     "dist:win": "npm run transpile:electron && npm run build && electron-builder --win --x64 --config.win.signAndEditExecutable=false",
     "dist:linux": "npm run transpile:electron && npm run build && electron-builder --linux --x64",
     "test:unit": "vitest src",
-    "import": "npx tsx src/import/import.ts"
+    "import": "npx tsx src/import/import.ts",
+    "migrate": "npm run build && npx sequelize-cli db:migrate"
   },
   "dependencies": {
     "@mantine/core": "^7.17.3",

@@ -7,7 +7,7 @@ import {
   MultiSelect,
   RangeSlider,
   Text,
-  TextInput,
+  TextInput, Title,
 } from '@mantine/core';
 import {
   SiCitroen,
@@ -23,10 +23,13 @@ import {
   SiVolkswagen,
 } from 'react-icons/si';
 import { FaCar } from 'react-icons/fa';
+import { Brand } from '../../models/Brand';
+import { View } from '../../models/View';
 
 interface ViewFilterProps {
   onFilterChange: (filters: ViewFilters) => void;
-  brands: { name: string; count: number }[];
+  brands: Brand[];
+  views: View[];
 }
 
 function ViewFilter(props: ViewFilterProps) {
@@ -34,9 +37,17 @@ function ViewFilter(props: ViewFilterProps) {
   const [modelFilter, setModelFilter] = useState<string>('');
   const [equipmentFilter, setEquipmentFilter] = useState<string>('');
   const [ownerFilter, setOwnerFilter] = useState<string>('');
-  const [dateFilter, setDateFilter] = useState<[number, number]>([1900, 2025]);
+  const [dateFilter, setDateFilter] = useState<[number, number]>([1899, 2031]);
+  const [minMaxDates, setMinMaxDates] = useState<{
+    min: number;
+    max: number;
+  }>();
+
+  const getMinMaxVehiclesDate = async () =>
+    await window.vehicleAPI.getMinMaxVehiclesDate();
 
   useEffect(() => {
+    console.log('useEffect 1 triggered');
     props.onFilterChange({
       brand: brandFilter,
       model: modelFilter,
@@ -46,6 +57,25 @@ function ViewFilter(props: ViewFilterProps) {
       dateMax: dateFilter[1],
     });
   }, [brandFilter, modelFilter, equipmentFilter, ownerFilter, dateFilter]);
+
+  useEffect(() => {
+    const extractedDates = props.views
+      .map((view) => view.vehicle?.date)
+      .filter((value): value is number => typeof value === 'number');
+
+    if (extractedDates.length > 0) {
+      const minDate = Math.min(...extractedDates);
+      const maxDate = Math.max(...extractedDates);
+      if (minDate !== dateFilter[0] || maxDate !== dateFilter[1]) {
+        setDateFilter([minDate, maxDate]);
+      }
+    }
+
+    getMinMaxVehiclesDate().then((minMax) => {
+      console.log('minmax', minMax);
+      setMinMaxDates(minMax);
+    });
+  }, []);
 
   function getLogo(item: ComboboxLikeRenderOptionInput<ComboboxItem>) {
     switch (item.option.value) {
@@ -91,7 +121,7 @@ function ViewFilter(props: ViewFilterProps) {
     <Container
       style={{ paddingRight: 25, paddingLeft: 0, margin: 0, minWidth: '300px' }}
     >
-      <h3>Filtres</h3>
+      <Title order={3} mb={20}>Filtres</Title>
       <MultiSelect
         value={brandFilter}
         onChange={setBrandFilter}
@@ -122,8 +152,8 @@ function ViewFilter(props: ViewFilterProps) {
       />
       <Text>Date</Text>
       <RangeSlider
-        min={1900}
-        max={2030}
+        min={minMaxDates ? minMaxDates.min : 1900}
+        max={minMaxDates ? minMaxDates.max : 2030}
         value={dateFilter}
         labelAlwaysOn
         style={{ marginTop: '2rem' }}

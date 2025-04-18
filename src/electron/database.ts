@@ -100,7 +100,7 @@ Vehicle.belongsTo(Brand, { foreignKey: 'brandId', as: 'brand' });
 export const initDb = async () => {
   try {
     await sequelize.authenticate();
-    await sequelize.sync({force: true});
+    await sequelize.sync();
     console.log('Base de données initialisée avec succès.');
   } catch (error) {
     console.error(

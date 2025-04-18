@@ -1,9 +1,8 @@
-import { QueryTypes, Sequelize } from 'sequelize';
+import { Sequelize } from 'sequelize';
 import { Vehicle } from '../../models/Vehicle.js';
 import { View } from '../../models/View.js';
 import { executeImport } from '../../import/import.js';
 import { getBrandsForFile } from '../../import/importService.js';
-import { sequelize } from '../database.js';
 
 export const getVehiclesAndViews = async (): Promise<{
   vehicles: Vehicle[];
@@ -45,4 +44,3 @@ export const getViewsByVehicle = async (vehicleId: number) => {
   const views = await View.findAll({ where: { vehicleId: vehicleId } });
   return views.map((view) => view.get({ plain: true })) as View[];
 };
-

@@ -1,9 +1,11 @@
 import {
+  BelongsToGetAssociationMixin,
   CreationOptional,
   ForeignKey,
   InferAttributes,
   InferCreationAttributes,
-  Model, NonAttribute,
+  Model,
+  NonAttribute,
 } from 'sequelize';
 import { Vehicle } from './Vehicle';
 
@@ -15,5 +17,6 @@ export class View extends Model<
   declare name: string;
   declare url: string | null;
   declare vehicleId: ForeignKey<Vehicle['id']>;
-  declare vehicle?: NonAttribute<Vehicle>
+  declare vehicle?: NonAttribute<Vehicle>;
+  declare getVehicle: BelongsToGetAssociationMixin<Vehicle>;
 }

@@ -2,11 +2,14 @@ type EventPayloadMapping = {
   getVehiclesAndViews: { vehicles: Vehicle[]; views: View[] };
   import: void;
   selectFile: string;
-  checkFile: {brand: string, count: number}[];
+  selectFiles: string[];
+  checkFile: { brand: string; count: number }[];
   getViewsByVehicle: View[];
 
   createVehicle: Vehicle;
   getVehicle: Vehicle;
+  getVehicleForView: Vehicle;
+  getMinMaxVehiclesDate: { min: number, max: number };
   getAllVehicles: Vehicle[];
   updateVehicle: Vehicle;
   deleteVehicle: Vehicle;
@@ -20,7 +23,7 @@ type EventPayloadMapping = {
   createBrand: Brand;
   getBrand: Brand;
   getBrandForName: Brand;
-  countBrands: { name: string, count: number }[]
+  countBrands: { name: string; count: number }[];
   getAllBrands: Brand[];
   updateBrand: Brand;
   deleteBrand: Brand;
@@ -31,12 +34,17 @@ interface Window {
     getVehiclesAndViews: () => Promise<{ vehicles: Vehicle[]; views: View[] }>;
     import: (filePath: string) => Promise<void>;
     selectFile: () => Promise<string>;
-    checkFile: (filePath: string) => Promise<{brand: string, count: number}[]>;
+    selectFiles: () => Promise<string[]>;
+    checkFile: (
+      filePath: string
+    ) => Promise<{ brand: string; count: number }[]>;
     getViewsByVehicle: (vehicleId: number) => Promise<View[]>;
   };
   vehicleAPI: {
     createVehicle: (vehicle: Vehicle) => Promise<Vehicle>;
     getVehicle: (vehicleId: number) => Promise<Vehicle>;
+    getVehicleForView: (view: View) => Promise<Vehicle>;
+    getMinMaxVehiclesDate: () => Promise<{ min: number, max: number }>;
     getAllVehicles: () => Promise<Vehicle[]>;
     updateVehicle: (
       vehicleToUpdate: Vehicle,
@@ -55,7 +63,7 @@ interface Window {
     createBrand: (brand: Brand) => Promise<Brand>;
     getBrand: (brandId: number) => Promise<Brand>;
     getBrandForName: (brandName: string) => Promise<Brand>;
-    countBrands: () => Promise<{ name: string, count: number }[]>;
+    countBrands: () => Promise<{ name: string; count: number }[]>;
     getAllBrands: () => Promise<Brand[]>;
     updateBrand: (brandToUpdate: Brand, brand: Brand) => Promise<Brand>;
     deleteBrand: (brandId: number) => Promise<Brand>;

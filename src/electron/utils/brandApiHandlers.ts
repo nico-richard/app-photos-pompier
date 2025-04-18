@@ -1,8 +1,10 @@
 import { Brand } from '../../models/Brand.js';
+import { sequelize } from '../database.js';
+import { QueryTypes } from 'sequelize';
 
 export const createBrand = async (brand: Brand) => {
   console.log(`Brand creation : ${JSON.stringify(brand)}`);
-  return await Brand.create({ ...brand });
+  return await Brand.create(brand);
 };
 export const getBrand = async (brandId: number) => {
   return (await Brand.findOne({ where: { id: brandId } }))?.get({
@@ -17,13 +19,12 @@ export const getBrandForName = async (brandName: string) => {
 export const countBrands = async (): Promise<
   { name: string; count: number }[]
 > => {
-  // return await sequelize.query<{ name: string; count: number }>(
-  //   'select name, count() as count from brand group by name',
-  //   {
-  //     type: QueryTypes.SELECT,
-  //   }
-  // );
-  return new Promise((resolve, reject) => {});
+  return await sequelize.query<{ name: string; count: number }>(
+    'select name, count() as count from brand group by name',
+    {
+      type: QueryTypes.SELECT,
+    }
+  );
 };
 export const getAllBrands = async () => {
   return (await Brand.findAll()).map((brand) =>
