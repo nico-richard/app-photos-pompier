@@ -22,6 +22,7 @@ import {
   updateVehicle,
 } from './vehicleApiHandlers.js';
 import {
+  checkIfViewExists,
   createView,
   deleteView,
   getAllViews,
@@ -100,6 +101,7 @@ const createWindow = async () => {
   ipcMainHandle('deleteVehicle', deleteVehicle);
 
   ipcMainHandle('createView', createView);
+  ipcMainHandle('checkIfViewExists', checkIfViewExists);
   ipcMainHandle('getView', getView);
   ipcMainHandle('getAllViews', getAllViews);
   ipcMainHandle('updateView', updateView);

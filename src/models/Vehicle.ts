@@ -54,6 +54,6 @@ export class Vehicle
   };
 
   toString() {
-    return `${this.brand} ${this.model}`;
+    return `[${this.id}]${this.brand} ${this.model}`;
   }
 }

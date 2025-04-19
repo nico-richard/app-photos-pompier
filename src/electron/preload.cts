@@ -1,6 +1,7 @@
 import { Vehicle } from '../models/Vehicle';
 import { View } from '../models/View';
 import { Brand } from '../models/Brand';
+import { checkIfViewExists } from './utils/viewApiHandlers';
 
 const electron = require('electron');
 
@@ -27,6 +28,7 @@ electron.contextBridge.exposeInMainWorld('vehicleAPI', {
 
 electron.contextBridge.exposeInMainWorld('viewAPI', {
   createView: (view: View) => ipcInvoke('createView', view),
+  checkIfViewExists: (view: View) => ipcInvoke('checkIfViewExists', view),
   getView: (viewId: number) => ipcInvoke('getView', viewId),
   getAllViews: () => ipcInvoke('getAllViews'),
   updateView: (viewToUpdate: View, view: View) =>

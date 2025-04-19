@@ -6,6 +6,7 @@ type EventPayloadMapping = {
   checkFile: { brand: string; count: number }[];
   getViewsByVehicle: View[];
 
+  // Vehicle
   createVehicle: Vehicle;
   getVehicle: Vehicle;
   getVehicleForView: Vehicle;
@@ -14,12 +15,15 @@ type EventPayloadMapping = {
   updateVehicle: Vehicle;
   deleteVehicle: Vehicle;
 
+  // View
   createView: View;
+  checkIfViewExists: boolean;
   getView: View;
   getAllViews: View[];
   updateView: View;
   deleteView: View;
 
+  // Brand
   createBrand: Brand;
   getBrand: Brand;
   getBrandForName: Brand;
@@ -54,6 +58,7 @@ interface Window {
   };
   viewAPI: {
     createView: (view: View) => Promise<View>;
+    checkIfViewExists: (view: View) => Promise<boolean>;
     getView: (viewId: number) => Promise<View>;
     getAllViews: () => Promise<View[]>;
     updateView: (viewToUpdate: View, view: View) => Promise<View>;

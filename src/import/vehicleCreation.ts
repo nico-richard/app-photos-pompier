@@ -28,7 +28,7 @@ export async function createVehicle(
   });
   if (!brandEntity) {
     console.log('No brand found for name : ' + brand);
-    return;
+    return 0;
   }
   const vehicle = await Vehicle.build({
     brandId: brandEntity.id,
@@ -39,5 +39,8 @@ export async function createVehicle(
     comment: comment,
     license: license,
   }).save();
-  await handleViewCreation(vehicle.id, viewString, filePath);
+  const failedViews = await handleViewCreation(vehicle.id, viewString, filePath);
+  if (failedViews > 0) {
+    console.log(failedViews, 'views failed for vehicle', vehicle.toString());
+  }
 }

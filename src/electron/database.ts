@@ -57,6 +57,9 @@ View.init(
     url: {
       type: DataTypes.STRING,
     },
+    hash: {
+      type: DataTypes.STRING,
+    },
   },
   {
     sequelize,
@@ -100,7 +103,7 @@ Vehicle.belongsTo(Brand, { foreignKey: 'brandId', as: 'brand' });
 export const initDb = async () => {
   try {
     await sequelize.authenticate();
-    await sequelize.sync();
+    await sequelize.sync({ force: true });
     console.log('Base de données initialisée avec succès.');
   } catch (error) {
     console.error(

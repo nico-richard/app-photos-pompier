@@ -16,6 +16,7 @@ import { LuKeyRound } from 'react-icons/lu';
 import { FaRegCommentAlt } from 'react-icons/fa';
 import { IconX } from '@tabler/icons-react';
 import { View } from '../../../models/View';
+import { notifications } from '@mantine/notifications';
 
 interface AddViewForVehicleModalProps {
   addViewForVehicleModalOpened: boolean;
@@ -60,6 +61,16 @@ const VehicleDetailsModal = (props: AddViewForVehicleModalProps) => {
         vehicleId: props.selectedVehicle?.id!,
       };
       console.log('Creates view : ', view);
+      const viewExists = await window.viewAPI.checkIfViewExists(view);
+      if (viewExists) {
+        console.log('View already exists:', view);
+        notifications.show({
+          title: 'Erreur',
+          message: 'Vue existante',
+          color: 'yellow',
+        });
+        return;
+      }
       await window.viewAPI.createView(view);
     }
   };
@@ -121,12 +132,15 @@ const VehicleDetailsModal = (props: AddViewForVehicleModalProps) => {
           Sélectionner des photos
         </Button>
       )}
-      <Container mt={20} style={{ backgroundColor: theme.colors.black[6], borderRadius: '5px' }}>
+      <Container
+        mt={20}
+        style={{ backgroundColor: theme.colors.black[6], borderRadius: '5px' }}
+      >
         <Grid align="center">
           {displayedImages.map((image, index) => (
             <Grid.Col span={4} key={index}>
               <div className="icon-container">
-                {props.selectAndAddButtons &&
+                {props.selectAndAddButtons && (
                   <IconX
                     className="icon"
                     size={25}
@@ -139,7 +153,7 @@ const VehicleDetailsModal = (props: AddViewForVehicleModalProps) => {
                       console.log(image);
                     }}
                   />
-                }
+                )}
                 <Image src={`perso:///${image}`} radius="sm" />
               </div>
             </Grid.Col>

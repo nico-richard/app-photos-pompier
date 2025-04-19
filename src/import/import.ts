@@ -10,15 +10,15 @@ async function syncDatabase() {
 async function parseExcelSheets(filePath: string) {
   const sheets = xlsx.parse(filePath);
   for (const sheet of sheets) {
-    // if (sheet.name.toUpperCase() === 'CITROEN') {
-    const sheetName = sheet.name.toUpperCase();
-    await Brand.create({ name: sheetName });
-    for (const row of sheet.data as string[][]) {
-      if (row && row[0] && row[0].startsWith(sheetName)) {
-        await createVehicle(row, filePath, sheetName);
+    if (sheet.name.toUpperCase() === 'CITROEN') {
+      const sheetName = sheet.name.toUpperCase();
+      await Brand.create({ name: sheetName });
+      for (const row of sheet.data as string[][]) {
+        if (row && row[0] && row[0].startsWith(sheetName)) {
+          await createVehicle(row, filePath, sheetName);
+        }
       }
     }
-    // }
   }
 }
 

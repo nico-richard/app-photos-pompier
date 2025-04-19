@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { ViewFilters } from '../../models/ViewFilters';
 import {
+  Button,
   ComboboxItem,
   ComboboxLikeRenderOptionInput,
   Container,
   MultiSelect,
   RangeSlider,
   Text,
-  TextInput, Title,
+  TextInput,
+  Title,
+  useMantineTheme,
 } from '@mantine/core';
 import {
   SiCitroen,
@@ -41,7 +44,8 @@ function ViewFilter(props: ViewFilterProps) {
   const [minMaxDates, setMinMaxDates] = useState<{
     min: number;
     max: number;
-  }>();
+  }>({ min: 0, max: 0 });
+  const theme = useMantineTheme();
 
   const getMinMaxVehiclesDate = async () =>
     await window.vehicleAPI.getMinMaxVehiclesDate();
@@ -76,6 +80,14 @@ function ViewFilter(props: ViewFilterProps) {
       setMinMaxDates(minMax);
     });
   }, []);
+
+  const clear = () => {
+    setBrandFilter([]);
+    setModelFilter('');
+    setEquipmentFilter('');
+    setOwnerFilter('');
+    setDateFilter([minMaxDates.min, minMaxDates.max]);
+  };
 
   function getLogo(item: ComboboxLikeRenderOptionInput<ComboboxItem>) {
     switch (item.option.value) {
@@ -121,7 +133,9 @@ function ViewFilter(props: ViewFilterProps) {
     <Container
       style={{ paddingRight: 25, paddingLeft: 0, margin: 0, minWidth: '300px' }}
     >
-      <Title order={3} mb={20}>Filtres</Title>
+      <Title order={3} mb={20}>
+        Filtres
+      </Title>
       <MultiSelect
         value={brandFilter}
         onChange={setBrandFilter}
@@ -159,6 +173,9 @@ function ViewFilter(props: ViewFilterProps) {
         style={{ marginTop: '2rem' }}
         onChange={setDateFilter}
       />
+      <Button mt={20} color={theme.colors!.yellow![9]} onClick={clear}>
+        Tout effacer
+      </Button>
     </Container>
   );
 }

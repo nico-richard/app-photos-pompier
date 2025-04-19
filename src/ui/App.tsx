@@ -21,6 +21,7 @@ import { Brand } from '../models/Brand';
 import { Notifications } from '@mantine/notifications';
 import { useDisclosure } from '@mantine/hooks';
 import VehicleDetailsModal from './components/modals/VehicleDetailsModal';
+import ReactMarkdown from 'react-markdown';
 
 function App() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -37,6 +38,7 @@ function App() {
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | undefined>(
     undefined
   );
+  const [markdownContent, setMarkdownContent] = useState('');
 
   const getAllVehicles = () => {
     window.vehicleAPI.getAllVehicles().then((vehicles) => {
@@ -72,6 +74,9 @@ function App() {
     getAllVehicles();
     getAllViews();
     getAllBrands();
+    fetch('../../readme.md')
+      .then((response) => response.text())
+      .then((text) => setMarkdownContent(text));
   }, []);
 
   useEffect(() => {
@@ -159,9 +164,14 @@ function App() {
               if (value !== 'viewsGallery') {
                 setWithFilters(true);
               }
+              if (value === 'vehicleList') {
+                getAllVehicles();
+              }
+              if (value === 'viewsGallery') {
+                getAllViews();
+              }
               setActiveTab(value);
             }}
-            keepMounted={false}
             variant={'pills'}
             color={theme.colors!.red![7]}
           >
@@ -173,6 +183,7 @@ function App() {
               <Tabs.Tab value="viewsGallery">Vues</Tabs.Tab>
               <Tabs.Tab value="import">Import</Tabs.Tab>
               <Tabs.Tab value="brandsList">Marques</Tabs.Tab>
+              <Tabs.Tab value="help">Aide</Tabs.Tab>
             </Tabs.List>
             <Tabs.Panel value="home">
               <Home />
@@ -210,26 +221,29 @@ function App() {
             </Tabs.Panel>
             <Tabs.Panel value="import">
               <ImportFile />
+              <Tabs.Panel value="brandsList">
+                <Table
+                  data={brands}
+                  columns={brandColumns}
+                  refreshData={() => {
+                    getAllBrands();
+                  }}
+                  onCreate={(vehicleToCreate) =>
+                    window.brandAPI.createBrand(vehicleToCreate)
+                  }
+                  onUpdate={(brandToUpdate, updatedData) =>
+                    window.brandAPI.updateBrand(brandToUpdate, updatedData)
+                  }
+                  onDelete={(vehicleToDelete) =>
+                    window.brandAPI.deleteBrand(vehicleToDelete.id)
+                  }
+                >
+                  Liste des marques
+                </Table>
+              </Tabs.Panel>
             </Tabs.Panel>
-            <Tabs.Panel value="brandsList">
-              <Table
-                data={brands}
-                columns={brandColumns}
-                refreshData={() => {
-                  getAllBrands();
-                }}
-                onCreate={(vehicleToCreate) =>
-                  window.brandAPI.createBrand(vehicleToCreate)
-                }
-                onUpdate={(brandToUpdate, updatedData) =>
-                  window.brandAPI.updateBrand(brandToUpdate, updatedData)
-                }
-                onDelete={(vehicleToDelete) =>
-                  window.brandAPI.deleteBrand(vehicleToDelete.id)
-                }
-              >
-                Liste des marques
-              </Table>
+            <Tabs.Panel value="help">
+              <ReactMarkdown>{markdownContent}</ReactMarkdown>
             </Tabs.Panel>
           </Tabs>
         </Container>

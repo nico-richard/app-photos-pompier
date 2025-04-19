@@ -16,7 +16,12 @@ export class View extends Model<
   declare id: CreationOptional<number>;
   declare name: string;
   declare url: string | null;
+  declare hash: string;
   declare vehicleId: ForeignKey<Vehicle['id']>;
   declare vehicle?: NonAttribute<Vehicle>;
   declare getVehicle: BelongsToGetAssociationMixin<Vehicle>;
+
+  toString(): string {
+    return `[${this.id}]${this.name} ${this.url} ${this.hash} ${this.vehicleId}`;
+  }
 }
